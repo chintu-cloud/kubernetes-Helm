@@ -830,7 +830,7 @@ All your Helm chart resources (Deployment, Service, Ingress, etc.) should appear
 ---
 
 ## 🖼️ Mermaid diagram
-
+```bash
 ┌────────────────────────┐
 │        Developer       │
 │  (Git Commit / Push)   │
@@ -890,7 +890,7 @@ All your Helm chart resources (Deployment, Service, Ingress, etc.) should appear
 │        End User        │
 │   Browser / Client     │
 └────────────────────────┘
-
+```
 
 
 
