@@ -1,6 +1,7 @@
 # 🚀 Kubernetes Helm Deployment on AWS EKS
 
 This guide shows **step-by-step deployment of Helm charts** (`project-1` and `project-2`) on an AWS EKS cluster. All commands and outputs are included.
+<img width="1024" height="632" alt="image" src="https://github.com/user-attachments/assets/7fdbfbea-0542-4777-b583-62faf56be90f" />
 
 ---
 
