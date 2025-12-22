@@ -410,8 +410,7 @@ Complete!
   * **Username:** `admin`
   * **Password:** `3auK1d9iYKu27x-y`
 
----
-Perfect! I’ll give you **every single step from scratch to fully automated Argo CD deployment with Helm**, all in order. You can literally copy-paste each command.
+
 
 ---
 
