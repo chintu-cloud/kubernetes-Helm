@@ -146,31 +146,269 @@ release-1-project-1   NodePort    10.100.192.242   <none>        80:30914/TCP   
 
 ## 8️⃣ Update `project-1` values/templates
 
+
+## **1️⃣ Edit `values.yaml`**
+
+```yaml
+# values.yaml
+replicaCount: 2        # change from 1 → 2
+image:
+  repository: nginx     # change from httpd → nginx
+  tag: latest           # choose tag/version if needed
+```
+
+Save the file.
+
+---
+
+## **2️⃣ Edit `templates/deployment.yaml`**
+
+* Open deployment template:
+
 ```bash
-vi values.yaml
 vi templates/deployment.yaml
+```
+
+* Remove or replace the old `image` line. Make it dynamic using Helm values:
+
+```yaml
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+```
+
+> This ensures your deployment uses the values from `values.yaml`.
+
+* Delete any hardcoded `httpd` image lines.
+
+Save the file.
+
+---
+
+## **3️⃣ Upgrade Helm release**
+
+From the chart directory:
+
+```bash
 helm upgrade release-1 .
 ```
 
-**Output:**
+> `release-1` is your Helm release name.
+> The `.` points to the current chart directory.
+
+---
+
+## **4️⃣ Verify the deployment**
+
+Check pods and replica count:
+
+```bash
+kubectl get pods -n hotstar
+kubectl describe deployment <deployment-name> -n hotstar
+```
+
+Check container image:
+
+```bash
+kubectl get deployment <deployment-name> -n hotstar -o yaml | grep image
+```
+
+Expected result:
 
 ```
-Release "release-1" has been upgraded. Happy Helming!
+image: nginx:latest
+replicas: 2
 ```
 
 ---
 
+
+
+
+
 ## 9️⃣ Create and deploy `project-2`
+
+
+
+## Project: Helm Deployment of `hotstar` Application
+
+
+
+---
+
+## Step 1: Create a Helm Chart
 
 ```bash
 helm create project-2
+```
+
+**Explanation:**
+This creates a Helm chart named `project-2` with the default directory structure:
+
+```
+project-2/
+├── charts
+├── templates
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   └── _helpers.tpl
+├── Chart.yaml
+└── values.yaml
+```
+
+---
+
+## Step 2: Customize `values.yaml`
+
+```bash
 cd project-2
 vi values.yaml
+```
+
+Change the following fields:
+
+```yaml
+image:
+  repository: hotstar        # Your DockerHub image
+  pullPolicy: IfNotPresent
+  # tag: <optional>          # Delete or leave blank for latest image
+
+service:
+  type: NodePort             # Change from default ClusterIP to NodePort
+  port: 3000                 # Application port
+```
+
+**Explanation:**
+
+* **repository**: The Docker image you want to deploy.
+* **service.type**: `NodePort` exposes the service outside the cluster.
+* **service.port**: Kubernetes service port mapped to the container.
+
+---
+
+## Step 3: Update `deployment.yaml` Template
+
+```bash
 vi templates/deployment.yaml
+```
+
+Delete or comment out any static `image` or `version` references in the deployment spec so that Helm uses the values from `values.yaml`:
+
+```yaml
+# Example
+# image: nginx:1.16.0
+```
+
+**Explanation:**
+Helm will now use the image defined in `values.yaml` (`hotstar`) rather than a hardcoded image.
+
+---
+
+## Step 4: Install the Helm Chart
+
+```bash
 helm install release-2 .
+```
+
+**Output Example:**
+
+```
+NAME: release-2
+LAST DEPLOYED: Thu Dec 22 2025 10:00:00 GMT+0000 (UTC)
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+1. Get the application URL by running these commands:
+  export NODE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services release-2)
+  export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+```
+
+---
+
+## Step 5: Check Services
+
+```bash
 kubectl get svc
+```
+
+**Expected Output:**
+
+```
+NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+release-2    NodePort    10.96.158.97    <none>        3000:32000/TCP 1m
+kubernetes   ClusterIP   10.96.0.1       <none>        443/TCP        10m
+```
+
+* `PORT(S)`: 3000 inside the cluster, mapped to 32000 NodePort outside.
+
+---
+
+## Step 6: Check Nodes
+
+```bash
 kubectl get nodes -o wide
 ```
+
+**Expected Output:**
+
+```
+NAME       STATUS   ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+node1      Ready    control-plane   5d    v1.28.0   192.168.49.2  <none>        Ubuntu 22.04.1 LTS   5.19.0-50-generic  containerd://1.7.2
+```
+
+**Explanation:**
+
+* `INTERNAL-IP` is used with NodePort to access your app externally.
+* `EXTERNAL-IP` is usually `<none>` in local clusters like Minikube.
+
+---
+
+## Step 7: Access the Application
+
+1. Get the NodePort:
+
+```bash
+kubectl get svc release-2
+```
+
+2. Access the app using:
+
+```
+http://<NODE-IP>:<NODE-PORT>
+```
+
+Example:
+
+```
+http://192.168.49.2:32000
+```
+
+---
+
+## Step 8: Upgrade or Uninstall
+
+* Upgrade with new values:
+
+```bash
+helm upgrade release-2 .
+```
+
+* Uninstall the release:
+
+```bash
+helm uninstall release-2
+```
+
+---
+
+
 
 **Services output:**
 
