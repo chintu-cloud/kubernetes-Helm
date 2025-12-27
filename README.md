@@ -417,7 +417,10 @@ helm uninstall release-2
 NAME                  TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
 release-2-project-2   NodePort    10.100.212.37    <none>        3000:30316/TCP   32s
 ```
+<img width="1595" height="803" alt="image" src="https://github.com/user-attachments/assets/67acb3ba-a1da-4e05-a90d-fd15d4297a17" />
 
+
+---
 **Nodes output:**
 
 ```
